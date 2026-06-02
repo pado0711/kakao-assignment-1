@@ -7,9 +7,6 @@ export default [
   
   {
     files: ["**/*.js"],
-    plugins: {
-      sonarjs,
-    },
     rules: {
       // --- 📊 수치 중심의 정적 분석 가드레일 설정 ---
 
