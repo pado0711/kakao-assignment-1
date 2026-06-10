@@ -1,24 +1,25 @@
 # Kakao Assignment 1 - Todo App
 
-[카카오테크캠퍼스] 1주차 과제로 구현한 Vanilla JS 기반 Todo 웹 애플리케이션입니다.
-
+[카카오테크캠퍼스] 1주차 과제로 구현한 React + Vite 기반 Todo 웹 애플리케이션입니다.
 
 ## 테스트 가능한 URL
-https://kakao-assignment-1.vercel.app/
 
+https://kakao-assignment-1.vercel.app/
 
 ## Overview
 
-이 프로젝트는 HTML, CSS, Vanilla JavaScript만 사용해 Todo 생성, 수정, 완료, 삭제, 날짜별 보기, 상태별 필터, 페이지네이션, 로컬스토리지 저장을 구현합니다.
+이 프로젝트는 React, Vite, JavaScript, CSS를 사용해 Todo 생성, 수정, 완료, 삭제, 날짜별 보기, 상태별 필터, 페이지네이션, 로컬스토리지 저장을 구현합니다.
 
-추후 React와 TypeScript로 리팩토링하기 쉽도록 Todo 도메인 코드는 `features/todo`에 모으고, 날짜 계산, 모달, 페이지네이션처럼 재사용 가능한 코드는 `shared`로 분리했습니다.
+상태 흐름은 Custom Hook으로 분리하고, 화면 표현은 React 컴포넌트로 구성했습니다. Todo 도메인 로직과 localStorage 변환 로직은 DOM에 의존하지 않는 순수 모듈로 유지합니다.
 
 ## Tech Stack
 
-- HTML
+- React
+- Vite
+- JavaScript + JSX
 - CSS
-- Vanilla JavaScript
-- Node.js test runner
+- Vitest
+- React Testing Library
 - localStorage
 
 ## Features
@@ -42,119 +43,126 @@ https://kakao-assignment-1.vercel.app/
 npm install
 ```
 
-### 2. Start App
+### 2. Start Dev Server
 
 ```bash
-npm run start
+npm run dev
 ```
 
 브라우저에서 아래 주소를 엽니다.
 
 ```text
-http://localhost:3000
+http://localhost:5173
 ```
 
-## Test
+## Scripts
 
 ```bash
-npm test
+npm run dev      # 개발 서버
+npm run build    # 프로덕션 빌드
+npm run test     # Vitest 테스트
+npm run coverage # 커버리지 리포트
+npm run lint     # ESLint
 ```
-
-테스트는 DOM에 직접 의존하지 않는 Todo 비즈니스 로직과 저장소 변환 로직을 중심으로 검증합니다.
 
 ## Project Structure
 
 ```text
 kakao-assignment-1/
-├── css/
-│   └── styles.css
 ├── docs/
-│   ├── architecture_spec.md
-│   ├── error_case.md
-│   ├── functional_spec.md
-│   ├── nonfunctional_spec.md
-│   └── todo_test_cases.md
-├── js/
-│   ├── app.js
+├── src/
+│   ├── App.css
+│   ├── App.jsx
+│   ├── main.jsx
+│   ├── components/
+│   │   ├── ListControls.jsx
+│   │   ├── Modal.jsx
+│   │   ├── Pagination.jsx
+│   │   ├── TodoForm.jsx
+│   │   ├── TodoItem.jsx
+│   │   └── TodoList.jsx
 │   ├── features/
 │   │   └── todo/
 │   │       ├── todoConstants.js
 │   │       ├── todoService.js
-│   │       ├── todoState.js
-│   │       ├── todoStorage.js
-│   │       └── todoView.js
+│   │       └── todoStorage.js
+│   ├── hooks/
+│   │   ├── useModal.js
+│   │   ├── useTodos.js
+│   │   └── useView.js
 │   └── shared/
 │       ├── date.js
-│       ├── modal.js
 │       └── pagination.js
 ├── tests/
+│   ├── App.test.jsx
+│   ├── setup.js
 │   └── todoService.test.js
 ├── index.html
 ├── package-lock.json
-└── package.json
+├── package.json
+└── vite.config.js
 ```
 
 ## Architecture
 
-### `js/app.js`
+### `src/main.jsx`
 
-앱의 진입점입니다. 초기 상태를 만들고, 이벤트를 연결하고, 상태 변경 후 렌더링을 호출합니다.
+React root를 생성하고 `App`을 렌더링하는 Vite 진입점입니다.
 
-### `js/features/todo/todoService.js`
+### `src/App.jsx`
 
-Todo의 핵심 비즈니스 로직을 담당합니다.
+Custom Hook과 컴포넌트를 조합합니다. 상태 변경 로직을 직접 보유하지 않고 `useTodos`, `useView`, `useModal`의 반환값을 연결합니다.
+
+### `src/hooks/useTodos.js`
+
+Todo 목록과 수정 중인 Todo ID를 관리합니다.
+
+- Todo 생성, 수정, 완료 토글, 삭제
+- `useEffect` 기반 localStorage 저장
+- 기존 저장 데이터 로드 및 정규화 데이터 재저장
+- 저장 실패 메시지 전달
+
+### `src/hooks/useView.js`
+
+목록 보기 상태를 관리합니다.
+
+- 선택 날짜
+- 활성 필터
+- 날짜별/필터별 보기 모드
+- 현재 페이지
+- KST 기준 오늘 날짜 갱신
+
+### `src/hooks/useModal.js`
+
+모달 메시지 표시와 닫기 상태를 관리합니다.
+
+### `src/components`
+
+화면 표현을 담당합니다.
+
+- `TodoForm.jsx`: Todo 입력 폼
+- `ListControls.jsx`: 날짜 이동과 상태 필터 탭
+- `TodoList.jsx`, `TodoItem.jsx`: Todo 목록과 항목
+- `Pagination.jsx`: 페이지 이동
+- `Modal.jsx`: 사용자 알림 모달
+
+### `src/features/todo`
+
+Todo 도메인 순수 로직입니다.
 
 - 입력값 검증
-- Todo 생성
-- Todo 수정
-- 완료 상태 토글
-- 날짜별 목록 정렬
-- 상태별 목록 정렬
-- 저장 데이터 직렬화 및 기존 데이터 정규화
+- Todo 생성, 수정, 완료 토글
+- 날짜별/상태별 정렬
+- 저장 데이터 직렬화
+- 기존 데이터 정규화
 
-### `js/features/todo/todoStorage.js`
+### `src/shared`
 
-localStorage 입출력을 담당합니다.
-
-- 저장 가능 여부 확인
-- 저장된 Todo 로드
-- Todo 저장
-- JSON 파싱 실패 처리
-- 저장 실패 처리
-
-### `js/features/todo/todoState.js`
-
-앱 상태를 생성하고 변경합니다.
-
-- 전체 Todo 목록
-- 오늘 날짜
-- 선택한 날짜
-- 활성 필터
-- 현재 뷰 모드
-- 현재 페이지
-- 수정 중인 Todo ID
-
-### `js/features/todo/todoView.js`
-
-DOM 렌더링과 화면 입력 상태를 담당합니다.
-
-- Todo 목록 렌더링
-- 수정 input 렌더링
-- 필터 탭 활성화
-- 날짜 라벨 표시
-- 입력창 에러 표시
-
-### `js/shared`
-
-여러 기능에서 재사용할 수 있는 공통 로직입니다.
-
-- `date.js`: KST 기준 날짜 계산
-- `modal.js`: 사용자 알림 Modal
-- `pagination.js`: 페이지 계산 및 버튼 렌더링
+날짜 계산과 페이지네이션 계산처럼 여러 영역에서 쓰는 공통 순수 로직입니다.
 
 ## Data Model
 
-내부 Todo 상태는 React/TypeScript 전환을 고려해 영문 `status`를 사용합니다.
+내부 Todo 상태는 영문 `status`를 사용합니다.
 
 ```ts
 type TodoStatus = 'default' | 'inProgress' | 'completed';
@@ -170,7 +178,7 @@ interface Todo {
 }
 ```
 
-localStorage에는 기존 명세와 테스트 케이스 호환을 위해 `state` 라벨도 함께 저장합니다.
+localStorage에는 기존 명세와 데이터 호환을 위해 `state` 라벨도 함께 저장합니다.
 
 ```json
 {
@@ -188,10 +196,9 @@ localStorage에는 기존 명세와 테스트 케이스 호환을 위해 `state`
 
 ## Documents
 
-상세 명세는 `docs/` 디렉터리에서 확인할 수 있습니다.
-
 - [기능 명세](./docs/functional_spec.md)
 - [비기능 요구사항](./docs/nonfunctional_spec.md)
 - [에러 케이스](./docs/error_case.md)
 - [아키텍처](./docs/architecture_spec.md)
 - [테스트 케이스](./docs/todo_test_cases.md)
+- [마이그레이션](./docs/migrations.md)
