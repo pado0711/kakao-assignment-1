@@ -88,13 +88,15 @@ export const renderControls = (state) => {
   elements.selectedDateLabel.textContent = formatKstDateLabel(state.selectedDate);
   elements.dateInput.value ||= state.today;
   elements.filterTabs.forEach((tab) => {
-    const isActive = state.viewMode === VIEW_MODE.FILTER && tab.dataset.filter === state.activeFilter;
+    const isActive = state.viewMode === VIEW_MODE.FILTER
+      && tab.dataset.filter === state.activeFilter;
     tab.classList.toggle('active', isActive);
     tab.setAttribute('aria-selected', String(isActive));
   });
+  const activeFilterSelector = `[data-filter="${state.activeFilter}"]`;
   elements.viewTitle.textContent = state.viewMode === VIEW_MODE.DATE
     ? `${formatKstDateLabel(state.selectedDate)}의 할 일`
-    : `${document.querySelector(`[data-filter="${state.activeFilter}"]`).textContent} 상태의 모든 할 일`;
+    : `${document.querySelector(activeFilterSelector).textContent} 상태의 모든 할 일`;
   elements.storageNotice.textContent = state.storageAvailable ? '' : '저장 불가 모드';
 };
 

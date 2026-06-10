@@ -12,17 +12,21 @@ export const createTodoState = ({ todos, today }) => ({
 });
 
 export const replaceTodos = (state, todos) => {
-  state.todos = todos;
+  Object.assign(state, { todos });
 };
 
 export const showDate = (state, date) => {
-  state.selectedDate = date;
-  state.viewMode = VIEW_MODE.DATE;
-  state.currentPage = 1;
+  Object.assign(state, {
+    selectedDate: date,
+    viewMode: VIEW_MODE.DATE,
+    currentPage: 1,
+  });
 };
 
 export const showFilter = (state, filter) => {
-  state.activeFilter = filter;
-  state.viewMode = VIEW_MODE.FILTER;
-  state.currentPage = 1;
+  Object.assign(state, {
+    activeFilter: filter,
+    viewMode: VIEW_MODE.FILTER,
+    currentPage: 1,
+  });
 };

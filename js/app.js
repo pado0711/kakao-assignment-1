@@ -26,7 +26,7 @@ import {
   updateCharacterCount,
 } from './features/todo/todoView.js';
 import { getKstDate, shiftDate } from './shared/date.js';
-import { showModal } from './shared/modal.js';
+import { showConfirmModal, showModal } from './shared/modal.js';
 import {
   clampPage,
   getTotalPages,
@@ -105,7 +105,7 @@ const handleUpdateTodo = (todoId, input) => {
   render();
 };
 
-const handleListClick = (event) => {
+const handleListClick = async (event) => {
   const { action, id } = event.target.dataset;
   if (!action || !id) return;
 
@@ -116,7 +116,8 @@ const handleListClick = (event) => {
   }
 
   if (action === 'delete') {
-    if (!window.confirm('이 할 일을 삭제할까요?')) return;
+    const confirmed = await showConfirmModal('이 할 일을 삭제할까요?');
+    if (!confirmed) return;
     if (!commitTodos(state.todos.filter((todo) => todo.id !== id))) return;
     state.editingTodoId = null;
     render();
@@ -129,7 +130,8 @@ const handleToggleTodo = (event) => {
 
   const nextTodos = state.todos.map((todo) => (todo.id === id ? toggleTodo(todo) : todo));
   if (!commitTodos(nextTodos)) {
-    event.target.checked = !event.target.checked;
+    const checkbox = event.target;
+    checkbox.checked = !checkbox.checked;
     return;
   }
 

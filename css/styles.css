@@ -331,6 +331,18 @@ input.error {
   background: #347f72;
 }
 
+.modal-actions {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.modal-button--secondary {
+  border: 1px solid #cbd8d6;
+  color: #48635e;
+  background: #fff;
+}
+
 @media (max-width: 680px) {
   .app-shell {
     width: min(100% - 20px, 540px);
