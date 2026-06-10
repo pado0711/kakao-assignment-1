@@ -7,7 +7,7 @@
     "start": "npx http-server ./ -p 3000",
     "test": "node --test",
     "lint": "eslint . --max-warnings=0",
-    "lint:report": "eslint . --format json --output-file eslint-report.json",
+    "lint:report": "eslint . --max-warnings=0 --format json --output-file eslint-report.json",
     "coverage": "c8 --reporter=text --reporter=lcov --reporter=json-summary node --test",
     "ci": "npm run lint && npm run coverage"
   },
