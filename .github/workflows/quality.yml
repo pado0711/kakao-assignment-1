@@ -28,13 +28,17 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run ESLint report
-        id: eslint
+      - name: Run ESLint
+        run: npm run lint
+
+      - name: Generate ESLint report
         run: npm run lint:report
-        continue-on-error: true
 
       - name: Run tests with coverage
         run: npm run coverage
+
+      - name: Build app
+        run: npm run build
 
       - name: Summarize quality metrics
         id: summary
@@ -116,7 +120,3 @@ jobs:
           path: |
             eslint-report.json
             coverage/
-
-      - name: Fail on ESLint issues
-        if: steps.eslint.outcome == 'failure'
-        run: exit 1

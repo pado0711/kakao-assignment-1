@@ -114,7 +114,7 @@ const App = () => {
         <Pagination
           currentPage={safeCurrentPage}
           totalPages={totalPages}
-          onPageChange={view.goToPage}
+          onPageChange={goToPage}
         />
       </section>
       <Modal message={message} onClose={closeModal} />

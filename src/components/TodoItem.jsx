@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { CONTENT_MAX_LENGTH, STATUS_LABEL, TODO_STATUS } from '../features/todo/todoConstants.js';
+import { STATUS_LABEL, TODO_STATUS } from '../features/todo/todoConstants.js';
 
 const TodoItem = ({
   todo,
@@ -47,7 +47,6 @@ const TodoItem = ({
           ref={inputRef}
           className={`todo-edit-input${hasError ? ' error' : ''}`}
           value={content}
-          maxLength={CONTENT_MAX_LENGTH}
           aria-label="할 일 수정"
           onChange={(event) => {
             setContent(event.target.value);

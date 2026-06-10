@@ -27,11 +27,11 @@ const useTodos = ({
 } = {}) => {
   const initialTodayRef = useRef(null);
   const initialLoadRef = useRef(null);
-  const skipInitialSaveRef = useRef(true);
 
   if (!initialTodayRef.current) initialTodayRef.current = getKstDate();
   if (!initialLoadRef.current) initialLoadRef.current = loadTodos(initialTodayRef.current);
 
+  const skipInitialSaveRef = useRef(initialLoadRef.current.todos.length === 0);
   const [todos, setTodos] = useState(initialLoadRef.current.todos);
   const [editingTodoId, setEditingTodoId] = useState(null);
   const [storageAvailable] = useState(() => canUseStorage());

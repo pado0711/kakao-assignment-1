@@ -22,7 +22,7 @@
 
 ## 1. 기술 스택
 
-- **기술 스택:** HTML, CSS, Vanilla JS
+- **기술 스택:** Vite, React, JavaScript + JSX, CSS, Vitest
 - **데이터 저장:** 로컬 스토리지 (JSON 형태)
 - **코드 스타일:** Airbnb JavaScript Style Guide
 
@@ -172,4 +172,3 @@
 > **⛔ 한계**
 > 로컬스토리지는 브라우저별 약 5MB 한도가 있으며,
 > 다른 기기 또는 시크릿 모드에서는 데이터가 유지되지 않는다.
-

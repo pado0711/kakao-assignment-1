@@ -31,7 +31,6 @@ const TodoForm = ({ selectedDate, onAdd, onValidationError }) => {
           id="todo-content"
           name="todo-content"
           type="text"
-          maxLength={CONTENT_MAX_LENGTH}
           autoComplete="off"
           placeholder="할 일을 입력하세요"
           value={content}
