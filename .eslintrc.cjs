@@ -11,11 +11,18 @@ module.exports = {
   ],
   ignorePatterns: [
     'coverage/',
+    'dist/',
     'eslint-report.json',
   ],
   parserOptions: {
     ecmaVersion: 'latest',
     sourceType: 'module',
+  },
+  settings: {
+    'import/core-modules': [
+      'vite',
+      '@vitejs/plugin-react',
+    ],
   },
   rules: {
     'import/extensions': ['error', 'ignorePackages', {
