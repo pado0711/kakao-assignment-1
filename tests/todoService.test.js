@@ -20,7 +20,7 @@ import { clampPage, getTotalPages, paginate } from '../js/shared/pagination.js';
 
 const today = '2026-06-02';
 const yesterday = '2026-06-01';
-const createTodo = (overrides = {}) => ({
+const createTodoFixture = (overrides = {}) => ({
   id: 'todo-1',
   content: '테스트',
   date: today,
@@ -42,19 +42,19 @@ test('initial status depends on the KST date supplied by the caller', () => {
 });
 
 test('editing and toggling return new todo objects', () => {
-  const original = createTodo();
+  const original = createTodoFixture();
   const completed = toggleTodo(original);
   assert.equal(completed.status, TODO_STATUS.COMPLETED);
   assert.equal(toggleTodo(completed).status, TODO_STATUS.IN_PROGRESS);
-  assert.equal(updateTodo(createTodo({ date: yesterday }), '수정', today).status, TODO_STATUS.DEFAULT);
+  assert.equal(updateTodo(createTodoFixture({ date: yesterday }), '수정', today).status, TODO_STATUS.DEFAULT);
   assert.equal(original.status, TODO_STATUS.IN_PROGRESS);
 });
 
 test('date view and filter view stay independent', () => {
   const todos = [
-    createTodo({ id: 'old', date: yesterday, createdAt: 1 }),
-    createTodo({ id: 'today', createdAt: 2 }),
-    createTodo({
+    createTodoFixture({ id: 'old', date: yesterday, createdAt: 1 }),
+    createTodoFixture({ id: 'today', createdAt: 2 }),
+    createTodoFixture({
       id: 'done',
       date: yesterday,
       createdAt: 3,
@@ -77,10 +77,10 @@ test('date view and filter view stay independent', () => {
 
 test('all filter sorts todos by status priority and then by creation time', () => {
   const todos = [
-    createTodo({ id: 'completed', status: TODO_STATUS.COMPLETED, createdAt: 4 }),
-    createTodo({ id: 'default', status: TODO_STATUS.DEFAULT, createdAt: 3 }),
-    createTodo({ id: 'older-progress', createdAt: 1 }),
-    createTodo({ id: 'newer-progress', createdAt: 2 }),
+    createTodoFixture({ id: 'completed', status: TODO_STATUS.COMPLETED, createdAt: 4 }),
+    createTodoFixture({ id: 'default', status: TODO_STATUS.DEFAULT, createdAt: 3 }),
+    createTodoFixture({ id: 'older-progress', createdAt: 1 }),
+    createTodoFixture({ id: 'newer-progress', createdAt: 2 }),
   ];
   assert.deepEqual(selectVisibleTodos({
     todos,
@@ -109,7 +109,7 @@ test('storage writes Korean state compatibility values and recovers from damaged
     setItem: (key, value) => values.set(key, value),
   };
 
-  assert.equal(saveTodos([createTodo()]).saved, true);
+  assert.equal(saveTodos([createTodoFixture()]).saved, true);
   assert.equal(JSON.parse(values.get(STORAGE_KEY))[0].state, '진행중');
 
   values.set(STORAGE_KEY, 'INVALID_JSON');
