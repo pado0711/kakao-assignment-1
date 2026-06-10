@@ -19,6 +19,7 @@ import { loadTodos, saveTodos } from '../js/features/todo/todoStorage.js';
 import { clampPage, getTotalPages, paginate } from '../js/shared/pagination.js';
 
 const today = '2026-06-02';
+const yesterday = '2026-06-01';
 const createTodo = (overrides = {}) => ({
   id: 'todo-1',
   content: '테스트',
@@ -37,7 +38,7 @@ test('content validation trims text and rejects empty values', () => {
 
 test('initial status depends on the KST date supplied by the caller', () => {
   assert.equal(getInitialStatus(today, today), TODO_STATUS.IN_PROGRESS);
-  assert.equal(getInitialStatus('2026-06-01', today), TODO_STATUS.DEFAULT);
+  assert.equal(getInitialStatus(yesterday, today), TODO_STATUS.DEFAULT);
 });
 
 test('editing and toggling return new todo objects', () => {
@@ -45,15 +46,20 @@ test('editing and toggling return new todo objects', () => {
   const completed = toggleTodo(original);
   assert.equal(completed.status, TODO_STATUS.COMPLETED);
   assert.equal(toggleTodo(completed).status, TODO_STATUS.IN_PROGRESS);
-  assert.equal(updateTodo(createTodo({ date: '2026-06-01' }), '수정', today).status, TODO_STATUS.DEFAULT);
+  assert.equal(updateTodo(createTodo({ date: yesterday }), '수정', today).status, TODO_STATUS.DEFAULT);
   assert.equal(original.status, TODO_STATUS.IN_PROGRESS);
 });
 
 test('date view and filter view stay independent', () => {
   const todos = [
-    createTodo({ id: 'old', date: '2026-06-01', createdAt: 1 }),
+    createTodo({ id: 'old', date: yesterday, createdAt: 1 }),
     createTodo({ id: 'today', createdAt: 2 }),
-    createTodo({ id: 'done', date: '2026-06-01', createdAt: 3, status: TODO_STATUS.COMPLETED }),
+    createTodo({
+      id: 'done',
+      date: yesterday,
+      createdAt: 3,
+      status: TODO_STATUS.COMPLETED,
+    }),
   ];
   assert.deepEqual(selectVisibleTodos({
     todos,

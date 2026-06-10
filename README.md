@@ -2,6 +2,11 @@
 
 [카카오테크캠퍼스] 1주차 과제로 구현한 Vanilla JS 기반 Todo 웹 애플리케이션입니다.
 
+
+## 테스트 가능한 URL
+https://kakao-assignment-1.vercel.app/
+
+
 ## Overview
 
 이 프로젝트는 HTML, CSS, Vanilla JavaScript만 사용해 Todo 생성, 수정, 완료, 삭제, 날짜별 보기, 상태별 필터, 페이지네이션, 로컬스토리지 저장을 구현합니다.

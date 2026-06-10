@@ -11,7 +11,13 @@ export const paginate = (items, page, itemsPerPage) => {
   return items.slice(startIndex, startIndex + itemsPerPage);
 };
 
-const createPageButton = ({ label, page, disabled = false, active = false, onSelect }) => {
+const createPageButton = ({
+  label,
+  page,
+  disabled = false,
+  active = false,
+  onSelect,
+}) => {
   const button = document.createElement('button');
   button.className = `page-button${active ? ' active' : ''}`;
   button.type = 'button';

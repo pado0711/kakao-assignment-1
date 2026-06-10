@@ -56,7 +56,6 @@ export const updateTodo = (todo, content, today) => ({
   status: todo.date === today ? TODO_STATUS.IN_PROGRESS : TODO_STATUS.DEFAULT,
 });
 
-
 export const toggleTodo = (todo) => ({
   ...todo,
   updatedAt: getTimestamp(),
@@ -74,12 +73,17 @@ export const sortTodosForFilter = (todos) => [...todos].sort((left, right) => (
   || sortNewestFirst(left, right)
 ));
 
-/***
+/**
  * 뷰 모드와 필터링 조건에 따라 보여줄 Todo 리스트를 반환하는 로직
  * - 날짜별 보기 모드에서는 선택된 날짜에 해당하는 Todo만 필터링하여 최신순으로 정렬
  * - 필터링 보기 모드에서는 선택된 상태에 따라 Todo를 필터링하고, 상태 우선순위와 최신순으로 정렬
  */
-export const selectVisibleTodos = ({ todos, viewMode, selectedDate, activeFilter }) => {
+export const selectVisibleTodos = ({
+  todos,
+  viewMode,
+  selectedDate,
+  activeFilter,
+}) => {
   if (viewMode === VIEW_MODE.DATE) {
     return sortTodosForDate(todos.filter((todo) => todo.date === selectedDate));
   }
