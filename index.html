@@ -4,67 +4,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>오늘의 할 일</title>
-    <link rel="stylesheet" href="./css/styles.css" />
   </head>
   <body>
-    <main class="app-shell">
-      <section class="todo-card" aria-labelledby="app-title">
-        <header class="app-header">
-          <p class="eyebrow">TODO LIST</p>
-          <h1 id="app-title">오늘의 할 일</h1>
-          <p class="header-copy">작은 일부터 차근차근 기록해 보세요.</p>
-        </header>
-
-        <form class="todo-form" id="todo-form" novalidate>
-          <div class="input-group input-group--content">
-            <label for="todo-content">할 일</label>
-            <input
-              id="todo-content"
-              name="todo-content"
-              type="text"
-              maxlength="50"
-              autocomplete="off"
-              placeholder="할 일을 입력하세요"
-            />
-            <span class="character-count" id="character-count">0 / 50</span>
-          </div>
-          <div class="input-group">
-            <label for="todo-date">날짜</label>
-            <input id="todo-date" name="todo-date" type="date" />
-          </div>
-          <button class="primary-button" id="add" type="submit">추가</button>
-        </form>
-
-        <section class="list-controls" aria-label="목록 보기 설정">
-          <div class="date-navigation">
-            <button class="icon-button" id="previous-date" type="button" aria-label="이전 날짜">
-              &#8249;
-            </button>
-            <div>
-              <p class="control-label">선택한 날짜</p>
-              <strong id="selected-date-label"></strong>
-            </div>
-            <button class="icon-button" id="next-date" type="button" aria-label="다음 날짜">
-              &#8250;
-            </button>
-          </div>
-          <div class="filter-tabs" role="tablist" aria-label="상태별 보기">
-            <button class="filter-tab" type="button" role="tab" data-filter="all">전체</button>
-            <button class="filter-tab" type="button" role="tab" data-filter="inProgress">진행중</button>
-            <button class="filter-tab" type="button" role="tab" data-filter="completed">완료</button>
-          </div>
-        </section>
-
-        <div class="view-summary">
-          <p id="view-title"></p>
-          <p id="storage-notice" class="storage-notice" role="status"></p>
-        </div>
-
-        <ul class="todo-list" id="todo-list" aria-live="polite"></ul>
-        <nav class="pagination" id="pagination" aria-label="페이지 이동"></nav>
-      </section>
-    </main>
-
-    <script type="module" src="./js/app.js"></script>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

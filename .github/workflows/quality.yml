@@ -1,0 +1,122 @@
+name: Quality
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run ESLint
+        run: npm run lint
+
+      - name: Generate ESLint report
+        run: npm run lint:report
+
+      - name: Run tests with coverage
+        run: npm run coverage
+
+      - name: Build app
+        run: npm run build
+
+      - name: Summarize quality metrics
+        id: summary
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+
+            const eslintReport = JSON.parse(fs.readFileSync('eslint-report.json', 'utf8'));
+            const eslintTotals = eslintReport.reduce((totals, file) => ({
+              errors: totals.errors + file.errorCount,
+              warnings: totals.warnings + file.warningCount,
+              fixableErrors: totals.fixableErrors + file.fixableErrorCount,
+              fixableWarnings: totals.fixableWarnings + file.fixableWarningCount,
+            }), { errors: 0, warnings: 0, fixableErrors: 0, fixableWarnings: 0 });
+
+            const coverage = JSON.parse(
+              fs.readFileSync('coverage/coverage-summary.json', 'utf8'),
+            ).total;
+            const coverageRows = ['lines', 'statements', 'functions', 'branches']
+              .map((metric) => `| ${metric} | ${coverage[metric].pct}% | ${coverage[metric].covered}/${coverage[metric].total} |`)
+              .join('\n');
+
+            const summary = [
+              '## Quality Report',
+              '',
+              '| ESLint | Count |',
+              '| --- | ---: |',
+              `| Errors | ${eslintTotals.errors} |`,
+              `| Warnings | ${eslintTotals.warnings} |`,
+              `| Fixable errors | ${eslintTotals.fixableErrors} |`,
+              `| Fixable warnings | ${eslintTotals.fixableWarnings} |`,
+              '',
+              '| Coverage | Percent | Covered/Total |',
+              '| --- | ---: | ---: |',
+              coverageRows,
+              '',
+            ].join('\n');
+
+            await core.summary.addRaw(summary).write();
+            core.setOutput('body', summary);
+
+      - name: Comment quality metrics on PR
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        uses: actions/github-script@v7
+        env:
+          SUMMARY_BODY: ${{ steps.summary.outputs.body }}
+        with:
+          script: |
+            const body = process.env.SUMMARY_BODY;
+            const marker = '<!-- quality-report -->';
+            const issue_number = context.payload.pull_request.number;
+            const comments = await github.rest.issues.listComments({
+              ...context.repo,
+              issue_number,
+            });
+            const previous = comments.data.find((comment) => comment.body.includes(marker));
+            const nextBody = `${marker}\n${body}`;
+
+            if (previous) {
+              await github.rest.issues.updateComment({
+                ...context.repo,
+                comment_id: previous.id,
+                body: nextBody,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                ...context.repo,
+                issue_number,
+                body: nextBody,
+              });
+            }
+
+      - name: Upload reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: quality-reports
+          path: |
+            eslint-report.json
+            coverage/

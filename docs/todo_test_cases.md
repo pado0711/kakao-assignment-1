@@ -69,7 +69,8 @@ Assertion:
 
 TC-FN-04 | Todo 수정 저장 및 `updatedAt` 갱신
 Step:
-1) Click edit on an item, change value to '수정됨', press Enter
+1) Click edit on an item, change value to '수정됨'
+2) Press Enter, or click the edit button again
 Assertion:
  - `const t = JSON.parse(localStorage.getItem('todo-app-v2:todos')||'[]').find(x=>x.content==='수정됨'); !!t && t.updatedAt` (timestamp 존재)
 
@@ -147,7 +148,7 @@ Assertion:
 
 TC-UP-001 | 수정 후 빈 값 엔터 (UP-001 / UP-002)
 Step:
-1) Enter edit mode, clear text, press Enter
+1) Enter edit mode, clear text, press Enter or click the edit button again
 Assertion:
  - Change not saved: localStorage item content unchanged
  - Input shows validation highlight

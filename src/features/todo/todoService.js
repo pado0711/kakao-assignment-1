@@ -20,16 +20,36 @@ const createId = () => (
   ?? `${getTimestamp()}-${Math.random().toString(16).slice(2)}`
 );
 
+const createValidationSuccess = (content) => ({ valid: true, content });
+
+const createValidationError = (message) => ({ valid: false, message });
+
+const createTodoModel = ({
+  id,
+  content,
+  date,
+  createdAt,
+  updatedAt,
+  status,
+}) => ({
+  id,
+  content,
+  date,
+  createdAt,
+  updatedAt,
+  status,
+});
+
 // Todo content 유효성 검사 로직
 export const validateContent = (content) => {
   const trimmedContent = content.trim();
   if (!trimmedContent) {
-    return { valid: false, message: '할 일을 입력해 주세요.' };
+    return createValidationError('할 일을 입력해 주세요.');
   }
   if (trimmedContent.length > CONTENT_MAX_LENGTH) {
-    return { valid: false, message: `할 일은 ${CONTENT_MAX_LENGTH}자 이내로 입력해 주세요.` };
+    return createValidationError(`할 일은 ${CONTENT_MAX_LENGTH}자 이내로 입력해 주세요.`);
   }
-  return { valid: true, content: trimmedContent };
+  return createValidationSuccess(trimmedContent);
 };
 
 export const getInitialStatus = (date, today) => (
@@ -39,26 +59,30 @@ export const getInitialStatus = (date, today) => (
 // Todo 객체 생성 및 업데이트 로직
 export const createTodo = ({ content, date, today }) => {
   const timestamp = getTimestamp();
-  return {
+  return createTodoModel({
     id: createId(),
     content,
     date,
     createdAt: timestamp,
     updatedAt: timestamp,
     status: getInitialStatus(date, today),
-  };
+  });
 };
 // Todo 객체 업데이트 로직
-export const updateTodo = (todo, content, today) => ({
-  ...todo,
+export const updateTodo = (todo, content, today) => createTodoModel({
+  id: todo.id,
   content,
+  date: todo.date,
+  createdAt: todo.createdAt,
   updatedAt: getTimestamp(),
-  status: todo.date === today ? TODO_STATUS.IN_PROGRESS : TODO_STATUS.DEFAULT,
+  status: getInitialStatus(todo.date, today),
 });
 
-
-export const toggleTodo = (todo) => ({
-  ...todo,
+export const toggleTodo = (todo) => createTodoModel({
+  id: todo.id,
+  content: todo.content,
+  date: todo.date,
+  createdAt: todo.createdAt,
   updatedAt: getTimestamp(),
   status: todo.status === TODO_STATUS.COMPLETED
     ? TODO_STATUS.IN_PROGRESS
@@ -74,12 +98,17 @@ export const sortTodosForFilter = (todos) => [...todos].sort((left, right) => (
   || sortNewestFirst(left, right)
 ));
 
-/***
+/**
  * 뷰 모드와 필터링 조건에 따라 보여줄 Todo 리스트를 반환하는 로직
  * - 날짜별 보기 모드에서는 선택된 날짜에 해당하는 Todo만 필터링하여 최신순으로 정렬
  * - 필터링 보기 모드에서는 선택된 상태에 따라 Todo를 필터링하고, 상태 우선순위와 최신순으로 정렬
  */
-export const selectVisibleTodos = ({ todos, viewMode, selectedDate, activeFilter }) => {
+export const selectVisibleTodos = ({
+  todos,
+  viewMode,
+  selectedDate,
+  activeFilter,
+}) => {
   if (viewMode === VIEW_MODE.DATE) {
     return sortTodosForDate(todos.filter((todo) => todo.date === selectedDate));
   }
@@ -117,12 +146,12 @@ export const normalizeTodo = (todo, today) => {
   const createdAt = Number.isFinite(todo.createdAt) ? todo.createdAt : getTimestamp();
   const updatedAt = Number.isFinite(todo.updatedAt) ? todo.updatedAt : createdAt;
 
-  return {
+  return createTodoModel({
     id: todo.id,
     content: contentResult.content,
     date,
     createdAt,
     updatedAt,
     status,
-  };
+  });
 };
