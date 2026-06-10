@@ -8,14 +8,14 @@ import {
   toggleTodo,
   updateTodo,
   validateContent,
-} from '../js/features/todo/todoService.js';
+} from '../src/features/todo/todoService.js';
 import {
   STORAGE_KEY,
   TODO_FILTER,
   TODO_STATUS,
   VIEW_MODE,
-} from '../js/features/todo/todoConstants.js';
-import { loadTodos, saveTodos } from '../js/features/todo/todoStorage.js';
+} from '../src/features/todo/todoConstants.js';
+import { loadTodos, saveTodos } from '../src/features/todo/todoStorage.js';
 import { clampPage, getTotalPages, paginate } from '../js/shared/pagination.js';
 
 const today = '2026-06-02';
