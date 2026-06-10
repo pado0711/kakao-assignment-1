@@ -92,6 +92,19 @@ describe('App todo interactions', () => {
     expect(screen.queryByText('취소할 내용')).not.toBeInTheDocument();
   });
 
+  it('updates a todo when the edit button is clicked again while editing', async () => {
+    const { user } = setup();
+
+    await addTodo(user, '버튼 수정 전');
+    await user.click(screen.getByRole('button', { name: '수정' }));
+    await user.clear(screen.getByLabelText('할 일 수정'));
+    await user.type(screen.getByLabelText('할 일 수정'), '버튼 수정 후');
+    await user.click(screen.getByRole('button', { name: '수정' }));
+
+    expect(screen.getByText('버튼 수정 후')).toBeInTheDocument();
+    expect(screen.queryByText('버튼 수정 전')).not.toBeInTheDocument();
+  });
+
   it('shows a modal and keeps existing text when editing to an empty value', async () => {
     const { user } = setup();
 

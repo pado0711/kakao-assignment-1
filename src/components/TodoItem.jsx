@@ -62,7 +62,17 @@ const TodoItem = ({
       )}
       <span className="todo-state">{STATUS_LABEL[todo.status]}</span>
       <div className="todo-actions">
-        <button className="todo-action" type="button" onClick={() => onEdit(todo.id)}>
+        <button
+          className="todo-action"
+          type="button"
+          onClick={() => {
+            if (isEditing) {
+              handleUpdate();
+              return;
+            }
+            onEdit(todo.id);
+          }}
+        >
           수정
         </button>
         <button
