@@ -15,7 +15,7 @@ import {
 import { canUseStorage, loadTodos, saveTodos } from '../features/todo/todoStorage.js';
 import { getKstDate } from '../shared/date.js';
 
-const createSuccessResult = () => ({ ok: true, error: null });
+const createSuccessResult = (payload = {}) => ({ ok: true, error: null, ...payload });
 
 const createErrorResult = (error) => ({ ok: false, error });
 
@@ -25,9 +25,13 @@ const useTodos = ({
   viewMode,
   onStorageError,
 } = {}) => {
-  const initialTodayRef = useRef(getKstDate());
-  const initialLoadRef = useRef(loadTodos(initialTodayRef.current));
+  const initialTodayRef = useRef(null);
+  const initialLoadRef = useRef(null);
   const skipInitialSaveRef = useRef(true);
+
+  if (!initialTodayRef.current) initialTodayRef.current = getKstDate();
+  if (!initialLoadRef.current) initialLoadRef.current = loadTodos(initialTodayRef.current);
+
   const [todos, setTodos] = useState(initialLoadRef.current.todos);
   const [editingTodoId, setEditingTodoId] = useState(null);
   const [storageAvailable] = useState(() => canUseStorage());
@@ -71,7 +75,7 @@ const useTodos = ({
     });
     setTodos((currentTodos) => [...currentTodos, todo]);
     setEditingTodoId(null);
-    return createSuccessResult();
+    return createSuccessResult({ todo });
   }, []);
 
   const handleToggle = useCallback((todoId) => {

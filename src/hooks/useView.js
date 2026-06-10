@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { TODO_FILTER, VIEW_MODE } from '../features/todo/todoConstants.js';
 import { getKstDate, shiftDate } from '../shared/date.js';
 
@@ -39,6 +39,20 @@ const useView = () => {
       return nextToday;
     });
   }, []);
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') refreshToday();
+    };
+    const intervalId = window.setInterval(refreshToday, 60 * 1000);
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      window.clearInterval(intervalId);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [refreshToday]);
 
   return {
     today,

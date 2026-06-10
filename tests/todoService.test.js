@@ -16,7 +16,7 @@ import {
   VIEW_MODE,
 } from '../src/features/todo/todoConstants.js';
 import { loadTodos, saveTodos } from '../src/features/todo/todoStorage.js';
-import { clampPage, getTotalPages, paginate } from '../js/shared/pagination.js';
+import { clampPage, getTotalPages, paginate } from '../src/shared/pagination.js';
 
 const today = '2026-06-02';
 const yesterday = '2026-06-01';
