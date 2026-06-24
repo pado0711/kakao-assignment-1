@@ -1,6 +1,6 @@
 # Kakao Todo Full-stack
 
-Next.js App Router와 FastAPI로 구성한 Todo 모노레포입니다. 이메일/Google 로그인, 사용자별 Todo, 선택 요일 반복과 날짜별 예외를 지원합니다.
+Next.js App Router와 FastAPI로 구성한 Todo 모노레포입니다. 이메일/비밀번호 로그인, 사용자별 Todo, 선택 요일 반복과 날짜별 예외를 지원합니다.
 
 ## 실행
 
@@ -27,8 +27,6 @@ npm run dev
 ```
 
 웹 앱: `http://localhost:3000`
-
-Google Cloud Console의 승인된 리디렉션 URI에는 `http://localhost:3000/api/auth/google/callback`을 등록합니다. 같은 `GOOGLE_CLIENT_ID`를 양쪽 환경에, Client Secret은 백엔드에만 설정합니다.
 
 ## 검증
 

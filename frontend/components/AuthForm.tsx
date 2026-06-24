@@ -54,8 +54,6 @@ export default function AuthForm({ mode }: { mode: "login" | "register" }) {
           {pending ? "처리 중..." : mode === "login" ? "로그인" : "가입하기"}
         </button>
       </form>
-      <div className="my-5 flex items-center gap-3 text-xs text-slate-400"><span className="h-px flex-1 bg-slate-200" />또는<span className="h-px flex-1 bg-slate-200" /></div>
-      <a className="btn-secondary flex w-full justify-center" href="/api/auth/google/start">Google로 계속하기</a>
       <p className="mt-5 text-center text-sm text-slate-500">
         {mode === "login" ? "처음이신가요?" : "이미 계정이 있나요?"}{" "}
         <Link className="font-semibold text-indigo-600" href={mode === "login" ? "/register" : "/login"}>

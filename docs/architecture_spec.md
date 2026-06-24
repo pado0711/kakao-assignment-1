@@ -6,7 +6,7 @@
 
 - Frontend: Next.js 15 App Router, React 19, TypeScript, Tailwind CSS 4, Axios
 - Backend: FastAPI, SQLAlchemy 2, Pydantic 2, SQLite
-- 인증: 이메일/비밀번호, Google OAuth, 서버 세션, HttpOnly 쿠키
+- 인증: 이메일/비밀번호, 서버 세션, HttpOnly 쿠키
 - 테스트: Vitest, React Testing Library, Pytest
 
 ## 구조

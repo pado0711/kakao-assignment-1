@@ -8,7 +8,6 @@ from math import ceil
 from typing import Generator, List, Optional
 from zoneinfo import ZoneInfo
 
-import httpx
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
 from dotenv import load_dotenv
@@ -69,16 +68,6 @@ class User(Base):
     name: Mapped[str] = mapped_column(String(80))
     password_hash: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utc_now)
-
-
-class AuthIdentity(Base):
-    __tablename__ = "auth_identities"
-    __table_args__ = (UniqueConstraint("provider", "provider_subject"),)
-
-    id: Mapped[int] = mapped_column(primary_key=True)
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
-    provider: Mapped[str] = mapped_column(String(20))
-    provider_subject: Mapped[str] = mapped_column(String(320))
 
 
 class UserSession(Base):
@@ -172,11 +161,6 @@ class RegisterRequest(BaseModel):
 class LoginRequest(BaseModel):
     email: EmailStr
     password: str
-
-
-class GoogleRequest(BaseModel):
-    code: str
-    redirect_uri: str
 
 
 class UserResponse(BaseModel):
@@ -416,7 +400,6 @@ def create_app(database_url: Optional[str] = None) -> FastAPI:
         )
         db.add(user)
         db.flush()
-        db.add(AuthIdentity(user_id=user.id, provider="password", provider_subject=email))
         db.commit()
         db.refresh(user)
         return issue_session(db, user)
@@ -430,57 +413,6 @@ def create_app(database_url: Optional[str] = None) -> FastAPI:
             password_hasher.verify(user.password_hash, payload.password)
         except VerifyMismatchError:
             raise HTTPException(status_code=401, detail="이메일 또는 비밀번호가 올바르지 않습니다.")
-        return issue_session(db, user)
-
-    @application.post("/auth/google", response_model=AuthResponse)
-    def google_login(payload: GoogleRequest, db: DbSession = Depends(get_db)):
-        client_id = os.getenv("GOOGLE_CLIENT_ID")
-        client_secret = os.getenv("GOOGLE_CLIENT_SECRET")
-        if not client_id or not client_secret:
-            raise HTTPException(status_code=503, detail="Google 로그인이 설정되지 않았습니다.")
-        token_response = httpx.post(
-            "https://oauth2.googleapis.com/token",
-            data={
-                "code": payload.code,
-                "client_id": client_id,
-                "client_secret": client_secret,
-                "redirect_uri": payload.redirect_uri,
-                "grant_type": "authorization_code",
-            },
-            timeout=10,
-        )
-        if token_response.status_code != 200:
-            raise HTTPException(status_code=401, detail="Google 인증에 실패했습니다.")
-        access_token = token_response.json().get("access_token")
-        profile_response = httpx.get(
-            "https://openidconnect.googleapis.com/v1/userinfo",
-            headers={"Authorization": f"Bearer {access_token}"},
-            timeout=10,
-        )
-        if profile_response.status_code != 200:
-            raise HTTPException(status_code=401, detail="Google 사용자 정보를 확인할 수 없습니다.")
-        profile = profile_response.json()
-        subject = profile.get("sub")
-        email = str(profile.get("email", "")).lower()
-        if not subject or not email or not profile.get("email_verified"):
-            raise HTTPException(status_code=401, detail="검증된 Google 이메일이 필요합니다.")
-        identity = db.scalar(select(AuthIdentity).where(
-            AuthIdentity.provider == "google", AuthIdentity.provider_subject == subject
-        ))
-        if identity:
-            user = db.get(User, identity.user_id)
-            return issue_session(db, user)
-        if db.scalar(select(User).where(User.email == email)):
-            raise HTTPException(
-                status_code=409,
-                detail="같은 이메일 계정이 있습니다. 기존 방식으로 로그인해 주세요.",
-            )
-        user = User(email=email, name=profile.get("name") or email.split("@")[0])
-        db.add(user)
-        db.flush()
-        db.add(AuthIdentity(user_id=user.id, provider="google", provider_subject=subject))
-        db.commit()
-        db.refresh(user)
         return issue_session(db, user)
 
     @application.get("/auth/me", response_model=UserResponse)
