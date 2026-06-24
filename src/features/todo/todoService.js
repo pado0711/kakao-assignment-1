@@ -96,7 +96,6 @@ export const sortTodosForFilter = (todos) => [...todos].sort((left, right) => (
   || sortNewestFirst(left, right)
 ));
 
-
 export const selectVisibleTodos = ({
   todos,
   viewMode,
@@ -117,7 +116,6 @@ export const serializeTodo = (todo) => ({
   ...todo,
   state: STATUS_LABEL[todo.status],
 });
-
 
 export const normalizeTodo = (todo, today) => {
   if (!todo || typeof todo !== 'object') return null;
