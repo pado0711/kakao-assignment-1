@@ -1,38 +1,16 @@
 {
-  "name": "kakao-assignment-1-tests",
-  "version": "0.1.0",
+  "name": "kakao-todo-fullstack",
+  "version": "1.0.0",
   "private": true,
-  "type": "module",
   "scripts": {
-    "dev": "vite",
-    "start": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
-    "test": "vitest run",
-    "lint": "eslint . --max-warnings=0",
-    "lint:report": "eslint . --max-warnings=0 --format json --output-file eslint-report.json",
-    "coverage": "vitest run --coverage",
-    "ci": "npm run lint && npm run coverage && npm run build"
-  },
-  "devDependencies": {
-    "@testing-library/jest-dom": "^6.9.1",
-    "@testing-library/react": "^16.3.2",
-    "@testing-library/user-event": "^14.6.1",
-    "@vitejs/plugin-react": "^6.0.2",
-    "@vitest/coverage-v8": "^4.1.8",
-    "eslint": "^8.57.1",
-    "eslint-config-airbnb-base": "^15.0.0",
-    "eslint-plugin-import": "^2.29.1",
-    "eslint-plugin-react": "^7.37.5",
-    "eslint-plugin-react-hooks": "^7.1.1",
-    "eslint-plugin-sonarjs": "^0.25.1",
-    "http-server": "^14.1.1",
-    "jsdom": "^29.1.1",
-    "vite": "^8.0.16",
-    "vitest": "^4.1.8"
-  },
-  "dependencies": {
-    "react": "^19.2.7",
-    "react-dom": "^19.2.7"
+    "dev:frontend": "npm --prefix frontend run dev",
+    "dev:backend": "backend/.venv/bin/uvicorn main:app --reload --app-dir backend",
+    "test:frontend": "npm --prefix frontend test",
+    "test:backend": "backend/.venv/bin/pytest backend -q",
+    "test": "npm run test:backend && npm run test:frontend",
+    "lint": "npm --prefix frontend run lint",
+    "build": "npm --prefix frontend run build",
+    "coverage": "npm --prefix frontend run coverage",
+    "ci": "npm run test && npm run lint && npm run build"
   }
 }

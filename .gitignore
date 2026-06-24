@@ -2,3 +2,10 @@ node_modules/
 coverage/
 dist/
 eslint-report.json
+.next/
+.venv/
+__pycache__/
+*.pyc
+*.db
+.env
+.env.local
