@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  createTodo,
   getInitialStatus,
   normalizeTodo,
   selectVisibleTodos,
@@ -42,6 +43,17 @@ describe('todo service', () => {
   it('initial status depends on the KST date supplied by the caller', () => {
     expect(getInitialStatus(today, today)).toBe(TODO_STATUS.IN_PROGRESS);
     expect(getInitialStatus(yesterday, today)).toBe(TODO_STATUS.DEFAULT);
+  });
+
+  it('creates ids and timestamps inside the todo model factory', () => {
+    const beforeCreation = Date.now();
+    const todo = createTodo({ content: '테스트', date: today, today });
+    const afterCreation = Date.now();
+
+    expect(todo.id).toEqual(expect.any(String));
+    expect(todo.createdAt).toBeGreaterThanOrEqual(beforeCreation);
+    expect(todo.createdAt).toBeLessThanOrEqual(afterCreation);
+    expect(todo.updatedAt).toBe(todo.createdAt);
   });
 
   it('editing and toggling return new todo objects', () => {

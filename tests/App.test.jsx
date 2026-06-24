@@ -5,6 +5,7 @@ import {
 } from 'vitest';
 import App from '../src/App.jsx';
 import { STORAGE_KEY } from '../src/features/todo/todoConstants.js';
+import { getKstDate } from '../src/shared/date.js';
 
 const setup = () => {
   const user = userEvent.setup();
@@ -185,7 +186,7 @@ describe('App todo interactions', () => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify([{
       id: 'legacy-1',
       content: '기존 데이터',
-      date: '2026-06-10',
+      date: getKstDate(),
       createdAt: 1,
       updatedAt: 1,
       state: '완료',

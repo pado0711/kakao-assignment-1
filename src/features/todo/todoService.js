@@ -25,11 +25,11 @@ const createValidationSuccess = (content) => ({ valid: true, content });
 const createValidationError = (message) => ({ valid: false, message });
 
 const createTodoModel = ({
-  id,
+  id = createId(),
   content,
   date,
-  createdAt,
-  updatedAt,
+  createdAt = getTimestamp(),
+  updatedAt = createdAt,
   status,
 }) => ({
   id,
@@ -38,6 +38,12 @@ const createTodoModel = ({
   createdAt,
   updatedAt,
   status,
+});
+
+const updateTodoModel = (todo, changes) => createTodoModel({
+  ...todo,
+  ...changes,
+  updatedAt: getTimestamp(),
 });
 
 export const validateContent = (content) => {
@@ -55,33 +61,18 @@ export const getInitialStatus = (date, today) => (
   date === today ? TODO_STATUS.IN_PROGRESS : TODO_STATUS.DEFAULT
 );
 
-export const createTodo = ({ content, date, today }) => {
-  const timestamp = getTimestamp();
-  return createTodoModel({
-    id: createId(),
-    content,
-    date,
-    createdAt: timestamp,
-    updatedAt: timestamp,
-    status: getInitialStatus(date, today),
-  });
-};
-
-export const updateTodo = (todo, content, today) => createTodoModel({
-  id: todo.id,
+export const createTodo = ({ content, date, today }) => createTodoModel({
   content,
-  date: todo.date,
-  createdAt: todo.createdAt,
-  updatedAt: getTimestamp(),
+  date,
+  status: getInitialStatus(date, today),
+});
+
+export const updateTodo = (todo, content, today) => updateTodoModel(todo, {
+  content,
   status: getInitialStatus(todo.date, today),
 });
 
-export const toggleTodo = (todo) => createTodoModel({
-  id: todo.id,
-  content: todo.content,
-  date: todo.date,
-  createdAt: todo.createdAt,
-  updatedAt: getTimestamp(),
+export const toggleTodo = (todo) => updateTodoModel(todo, {
   status: todo.status === TODO_STATUS.COMPLETED
     ? TODO_STATUS.IN_PROGRESS
     : TODO_STATUS.COMPLETED,
