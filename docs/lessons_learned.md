@@ -233,3 +233,58 @@ expect(validateContent('a'.repeat(51))).toEqual({
 - 테스트 실패는 단순히 테스트 기대값을 바꾸기보다, 명세와 구현 중 어느 쪽이 맞는지 먼저 판단한다.
 - 빌드/ESLint 통과는 사용자 이벤트 콜백의 정상 실행을 보장하지 않는다.
 - UI 요구사항은 순수 함수 테스트만으로 충분하지 않으므로 React Testing Library 같은 상호작용 테스트를 함께 둔다.
+
+---
+
+4. 이벤트 핸들러의 숨은 입력값
+
+## 발생한 문제
+
+- 위치: `src/components/TodoItem.jsx`의 `handleUpdate`
+- 기존 `handleUpdate()`는 매개변수가 없지만 함수 바깥의 `todo.id`와 `content`를 참조해 수정 대상을 결정했다.
+- `onEdit(todo.id)`, `onToggle(todo.id)`, `onDelete(todo.id)`는 호출부에서 대상 ID를 명시하는 반면, 수정 처리만 대상과 수정 내용을 클로저에 숨겨 호출 방식이 일관되지 않았다.
+
+## 코드를 그렇게 생성한 원인
+
+- `handleUpdate`를 `TodoItem`에서만 사용하는 지역 이벤트 핸들러로 보고, 컴포넌트의 props와 state를 클로저로 참조해도 된다는 React의 일반적인 작성 방식을 우선했다.
+- 그 과정에서 “동작하는가”에 집중해 함수가 실제로 필요로 하는 입력값이 시그니처에 드러나는지 확인하지 못했다.
+- 특히 수정 버튼과 Enter 키가 같은 로직을 공유하도록 중복 제거는 했지만, 다른 Todo 액션들이 ID를 명시적으로 전달하는 기존 코드 패턴과의 일관성을 놓쳤다.
+
+## 어떤 부분이 잘못되었는가
+
+```jsx
+const handleUpdate = () => {
+  const result = onUpdate(todo.id, content);
+  // ...
+};
+
+handleUpdate();
+```
+
+- `handleUpdate()` 호출만으로는 어느 Todo를 어떤 내용으로 수정하는지 알 수 없다.
+- `todo`는 전역 변수가 아니라 React prop이고 `content`는 컴포넌트 state이므로 이 코드가 즉시 잘못 동작하는 것은 아니다. 그러나 두 값 모두 함수 시그니처에 표현되지 않은 숨은 입력값이다.
+- 컴포넌트 구조가 바뀌거나 핸들러가 별도 함수로 이동될 때 암묵적인 클로저 의존성을 빠뜨릴 위험이 있다.
+- 이는 함수의 순수성 자체보다는 의존성 표현, 재사용성, 호출부 가독성의 문제다. `onUpdate`, `setHasError`, `onValidationError`를 호출하므로 `handleUpdate` 자체는 여전히 부수효과를 조율하는 이벤트 핸들러다.
+
+## 수정 내용
+
+```jsx
+const handleUpdate = (todoId, nextContent) => {
+  const result = onUpdate(todoId, nextContent);
+  // ...
+};
+
+handleUpdate(todo.id, content);
+```
+
+- `handleUpdate`가 수정 대상 ID와 새 내용을 매개변수로 받도록 변경했다.
+- Enter 키와 수정 버튼의 두 호출부 모두 `handleUpdate(todo.id, content)`로 필요한 입력을 명시했다.
+- `todo.content`는 저장된 기존 값이고 `content`는 사용자가 편집 중인 값이므로, 수정 시에는 현재 state인 `content`를 전달한다.
+
+## 재발 방지
+
+- 이벤트 핸들러가 특정 엔티티를 변경한다면 대상 식별자와 변경값을 매개변수로 표현한다.
+- 지역 함수가 props나 state를 클로저로 참조할 때는 단순 UI 상태인지, 함수의 핵심 입력값인지 구분한다. 대상 ID와 저장할 값처럼 결과를 결정하는 값은 명시적으로 전달한다.
+- 같은 컴포넌트의 유사 액션은 `onEdit(todo.id)`, `onDelete(todo.id)`, `handleUpdate(todo.id, content)`처럼 호출 형태를 일관되게 유지한다.
+- 핸들러를 추출하거나 재사용할 가능성이 있다면 함수 선언과 호출부만 보고 필요한 입력을 알 수 있는지 리뷰한다.
+- 수정 로직을 변경할 때는 Enter 저장, 수정 버튼 저장, 유효성 실패의 세 경로를 함께 테스트한다.
