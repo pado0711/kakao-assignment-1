@@ -1,107 +1,43 @@
-# 아키텍처 파일 구조 문서
+# 아키텍처 문서
 
-**Todo 웹 서비스 | React + Vite**
+**Todo 웹 서비스 | Next.js + FastAPI 모노레포**
 
-React + Vite 단일 Todo 앱이며, 상태 로직은 Custom Hook으로 분리하고 화면 표현은 컴포넌트로 구성한다. Todo 도메인 로직은 DOM에 의존하지 않는 순수 함수로 유지한다.
+## 기술 스택
 
-## 1. 기술 스택
+- Frontend: Next.js 15 App Router, React 19, TypeScript, Tailwind CSS 4, Axios
+- Backend: FastAPI, SQLAlchemy 2, Pydantic 2, SQLite
+- 인증: 이메일/비밀번호, 서버 세션, HttpOnly 쿠키
+- 테스트: Vitest, React Testing Library, Pytest
 
-- React
-- Vite
-- JavaScript + JSX
-- CSS
-- Vitest
-- React Testing Library
-- localStorage
-
-## 2. 파일 구조
+## 구조
 
 ```text
 kakao-assignment-1/
-├── docs/
-├── src/
-│   ├── App.css
-│   ├── App.jsx
-│   ├── main.jsx
-│   ├── components/
-│   │   ├── ListControls.jsx
-│   │   ├── Modal.jsx
-│   │   ├── Pagination.jsx
-│   │   ├── TodoForm.jsx
-│   │   ├── TodoItem.jsx
-│   │   └── TodoList.jsx
-│   ├── features/
-│   │   └── todo/
-│   │       ├── todoConstants.js
-│   │       ├── todoService.js
-│   │       └── todoStorage.js
-│   ├── hooks/
-│   │   ├── useModal.js
-│   │   ├── useTodos.js
-│   │   └── useView.js
-│   └── shared/
-│       ├── date.js
-│       └── pagination.js
-├── tests/
-│   ├── App.test.jsx
-│   ├── setup.js
-│   └── todoService.test.js
-├── index.html
-├── package-lock.json
-├── package.json
-└── vite.config.js
+├── frontend/              # 신규 Next.js 애플리케이션
+│   ├── app/               # 페이지, Server Actions, Route Handlers
+│   ├── components/        # 상호작용 가능한 Client Components
+│   ├── lib/               # 서버 API와 날짜 유틸리티
+│   └── types/             # 공개 TypeScript 타입
+├── backend/               # FastAPI와 SQLite
+│   ├── main.py            # 모델, 스키마, 인증, CRUD
+│   └── tests/
+└── docs/
 ```
 
-## 3. 계층별 책임
+## 데이터 흐름
 
-### `src/main.jsx`
+- Server Component 조회: `page.tsx → actions.ts → FastAPI → SQLite`
+- 브라우저 변경: `Client Component → /api Route Handler → FastAPI → SQLite`
+- 세션 토큰은 Next.js Route Handler만 받고 HttpOnly 쿠키에 저장한다.
+- FastAPI의 모든 Todo/반복 쿼리는 인증된 `user_id`를 조건으로 사용한다.
 
-Vite의 React 진입점이다. `ReactDOM.createRoot`로 `App`을 렌더링한다.
+## 반복 일정
 
-### `src/App.jsx`
+반복 일정을 날짜별 행으로 무한 생성하지 않는다. `recurrence_rules`에 선택 요일과 기간을 저장하고, 특정 날짜 조회 시 occurrence를 계산한다. 완료·내용 수정·이번 일정 삭제는 `recurrence_exceptions`에 저장한다.
 
-앱 조합 계층이다. 직접 상태 로직을 늘리지 않고 `useTodos`, `useView`, `useModal`을 조합하고 JSX 구조를 반환한다.
+## 설계 규칙
 
-### `src/hooks`
-
-상태와 사용자 액션 흐름을 관리한다.
-
-- `useTodos.js`: Todo 목록, 수정 상태, localStorage 저장 흐름
-- `useView.js`: 선택 날짜, 필터, 보기 모드, 현재 페이지
-- `useModal.js`: 모달 메시지 상태
-
-### `src/components`
-
-화면 표현 계층이다. DOM 직접 접근 없이 props와 이벤트 콜백으로 동작한다.
-
-### `src/features/todo`
-
-Todo 도메인 순수 로직이다. React와 DOM에 의존하지 않는다.
-
-### `src/shared`
-
-날짜 계산, 페이지 계산처럼 재사용 가능한 순수 유틸리티를 둔다.
-
-## 4. 상태 모델
-
-```ts
-type TodoStatus = 'default' | 'inProgress' | 'completed';
-type TodoFilter = 'all' | TodoStatus;
-
-interface Todo {
-  id: string;
-  content: string;
-  date: string;
-  createdAt: number;
-  updatedAt: number;
-  status: TodoStatus;
-}
-```
-
-## 5. 설계 규칙
-
-- 컴포넌트에서 `document.querySelector`, `innerHTML` 등으로 React 관리 DOM을 직접 수정하지 않는다.
-- 상태는 불변 업데이트로 변경한다.
-- 새 상태 로직은 `App.jsx`에 직접 추가하지 않고 관련 Hook에 둔다.
-- Todo 도메인 규칙은 `todoService.js`에 모은다.
-- 저장소 입출력과 데이터 정규화는 `todoStorage.js`와 `todoService.js`를 통해 처리한다.
+- Server Component를 기본으로 하고 이벤트가 필요한 최소 영역만 Client Component로 둔다.
+- 브라우저가 FastAPI 주소나 세션 토큰에 직접 접근하지 않는다.
+- 다른 사용자의 리소스는 존재 여부를 노출하지 않고 404로 처리한다.
+- DB 변경은 commit 실패 시 rollback 가능하도록 요청 단위 세션을 사용한다.
