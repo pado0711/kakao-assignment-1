@@ -8,5 +8,8 @@ export default defineConfig({
     environment: "jsdom",
     setupFiles: "./tests/setup.ts",
     globals: true,
+    coverage: {
+      reporter: ["text", "html", "clover", "json", "json-summary"],
+    },
   },
 });
