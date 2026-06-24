@@ -25,8 +25,8 @@ const TodoItem = ({
     inputRef.current?.select();
   }, [isEditing]);
 
-  const handleUpdate = () => {
-    const result = onUpdate(todo.id, content);
+  const handleUpdate = (todoId, nextContent) => {
+    const result = onUpdate(todoId, nextContent);
     if (!result.ok) {
       setHasError(true);
       onValidationError(result.error);
@@ -53,7 +53,7 @@ const TodoItem = ({
             setHasError(false);
           }}
           onKeyDown={(event) => {
-            if (event.key === 'Enter') handleUpdate();
+            if (event.key === 'Enter') handleUpdate(todo.id, content);
             if (event.key === 'Escape') onCancelEdit();
           }}
         />
@@ -67,7 +67,7 @@ const TodoItem = ({
           type="button"
           onClick={() => {
             if (isEditing) {
-              handleUpdate();
+              handleUpdate(todo.id, content);
               return;
             }
             onEdit(todo.id);
