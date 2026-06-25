@@ -19,7 +19,16 @@ kakao-assignment-1/
 │   ├── lib/               # 서버 API와 날짜 유틸리티
 │   └── types/             # 공개 TypeScript 타입
 ├── backend/               # FastAPI와 SQLite
-│   ├── main.py            # 모델, 스키마, 인증, CRUD
+│   ├── main.py            # FastAPI 앱 팩토리, 미들웨어, 라우터 조립
+│   ├── constants.py       # 공통 상수와 상태 우선순위
+│   ├── database.py        # SQLAlchemy Base, 엔진, 요청 단위 DB 세션
+│   ├── dependencies.py    # 인증된 세션/사용자 의존성
+│   ├── models.py          # SQLAlchemy Entity
+│   ├── schemas.py         # Pydantic 요청/응답 DTO
+│   ├── security.py        # 비밀번호 해시와 세션 토큰 해시
+│   ├── time_utils.py      # UTC/KST 날짜 유틸리티
+│   ├── routers/           # HTTP 라우팅과 의존성 연결
+│   ├── services/          # 인증, Todo, 반복 일정 비즈니스 로직
 │   └── tests/
 └── docs/
 ```
@@ -30,6 +39,16 @@ kakao-assignment-1/
 - 브라우저 변경: `Client Component → /api Route Handler → FastAPI → SQLite`
 - 세션 토큰은 Next.js Route Handler만 받고 HttpOnly 쿠키에 저장한다.
 - FastAPI의 모든 Todo/반복 쿼리는 인증된 `user_id`를 조건으로 사용한다.
+- FastAPI 내부 흐름은 `router → dependency → service → model/database` 순서를 따른다.
+
+## 백엔드 계층 책임
+
+- `main.py`는 환경 설정, DB 초기화, CORS, 라우터 등록만 담당한다.
+- `routers/`는 HTTP 경로, 요청 DTO, 응답 코드, FastAPI 의존성 연결만 담당한다.
+- `services/`는 소유권 조건이 포함된 조회, 상태 변경, 반복 occurrence 계산 등 비즈니스 규칙을 담당한다.
+- `models.py`는 DB 테이블과 관계만 정의하고, `schemas.py`는 API 입출력 검증만 담당한다.
+- `dependencies.py`는 Bearer 세션 검증과 현재 사용자 조회를 담당한다.
+- `database.py`는 요청 단위 세션을 제공하고 SQLite 외래키 제약을 활성화한다.
 
 ## 반복 일정
 
